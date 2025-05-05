@@ -26,6 +26,10 @@ async function initializeDb() {
             { country: 'Australia', city: 'Sydney', ParticipantId: participants[3].id }
         ]);
 
+        await db.User.create(
+            {username: "admin", password: 'P4ssword'}
+        )
+
         console.log('Database seeded successfully');
     } catch (error) {
         console.error('Failed to initialize database:', error);
