@@ -13,10 +13,10 @@ async function initializeDb() {
         ]);
 
         await db.Work.bulkCreate([
-            { companyName: 'TechCorp', salaray: 60000, currency: 'USD', ParticipantId: participants[0].id },
-            { companyName: 'Innovate Ltd', salaray: 75000, currency: 'USD', ParticipantId: participants[1].id },
-            { companyName: 'BuildIt Inc', salaray: 50000, currency: 'USD', ParticipantId: participants[2].id },
-            { companyName: 'DesignPro', salaray: 65000, currency: 'USD', ParticipantId: participants[3].id }
+            { companyName: 'TechCorp', salary: 60000, currency: 'USD', ParticipantId: participants[0].id },
+            { companyName: 'Innovate Ltd', salary: 75000, currency: 'USD', ParticipantId: participants[1].id },
+            { companyName: 'BuildIt Inc', salary: 50000, currency: 'USD', ParticipantId: participants[2].id },
+            { companyName: 'DesignPro', salary: 65000, currency: 'USD', ParticipantId: participants[3].id }
         ]);
 
         await db.Home.bulkCreate([
