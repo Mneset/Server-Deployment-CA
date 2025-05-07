@@ -42,33 +42,47 @@ router.get('/details/:email', async (req, res) => {
     }
 })
 
-router.get('/work/:email', (req, res) => {
+router.get('/work/:email', async (req, res) => {
+    const email = req.params.email
     try {
-        
+        const participantWorkDetails = await participantService.getWorkByEmail(email)
+        res.status(200).json(participantWorkDetails)
     } catch (error) {
         res.status(500).json('Internal server error')
     }
 })
 
-router.get('/home/:email', (req, res) => {
+router.get('/home/:email', async (req, res) => {
+    const email = req.params.email
     try {
-        res.status(200).json('Connected successfully')
+        const participantHomeDetails = await participantService.getHomeByEmail(email)
+        res.status(200).json(participantHomeDetails)
     } catch (error) {
         res.status(500).json('Internal server error')
     }
 })
 
 router.delete('/:email', (req, res) => {
+    const email = req.params.email
     try {
-        res.status(200).json('Connected successfully')
+        const participant = participantService.deleteParticipant(email)
+        res.status(200).json(participant)
     } catch (error) {
         res.status(500).json('Internal server error')
     }
 })
 
 router.put('/:email', (req, res) => {
+    const email = req.params.email
+    const updatedData = req.body
     try {
-        res.status(200).json('Connected successfully')
+        const updatedParticipant = participantService.updateParticipant(email, updatedData)
+        res.status(200).json(updatedParticipant)
+    } catch (error) {
+        res.status(500).json('Internal server error')
+    }
+    try {
+        
     } catch (error) {
         res.status(500).json('Internal server error')
     }
