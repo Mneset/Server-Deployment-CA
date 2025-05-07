@@ -8,7 +8,10 @@ module.exports = (sequelize, DataTypes) => {
         email: {
             type: DataTypes.STRING,
             allowNull: false,
-            unique: true
+            unique: true,
+            validate: {
+                isEmail: true
+            }
         },
         firstName: {
             type: DataTypes.STRING,
@@ -20,7 +23,14 @@ module.exports = (sequelize, DataTypes) => {
         },
         dob: {
             type: DataTypes.DATEONLY,
-            allowNull: false
+            allowNull: false,
+            validate: {
+                isBeforeToday(value) {
+                    if(new Date(value) >= new Date()) {
+                        throw new Error('Date of birth must be before today')
+                    }
+                }
+            }
         }
     });
 
