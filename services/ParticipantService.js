@@ -4,7 +4,7 @@ class ParticipantService {
     }
 
     async addParticipant(participant) {
-        try {
+
             const newParticipantPersona = await this.db.Participant.create({
                 email: participant.email, 
                 firstName: participant.firstName, 
@@ -37,6 +37,8 @@ class ParticipantService {
             }; 
 
             return newParticipant */
+
+            
             
             const newParticipant = await this.db.Participant.findOne({
                 where: { id: newParticipantPersona.id},
@@ -47,18 +49,9 @@ class ParticipantService {
             })
 
             return newParticipant
-
-            //Cleaner formatting
-
-            
-        } catch (error) {
-            console.log("Error adding participant:", error)
-            throw error
-        }
     }
 
     async getAll() {
-        try {
             const participants = await this.db.Participant.findAll({
                 include: [
                     {model: this.db.Home},
@@ -80,41 +73,26 @@ class ParticipantService {
                 currency: p.Work.currency,
             })); */
 
-            return participants
-        } catch (error) {
-            console.log("Error fetching participants:", error);
-            throw error;
-        }
+            return participants  
     }
 
     async getDetails() {
-        try {
             const participants = await this.db.Participant.findAll({
                 attributes: ['firstName', 'lastName', 'email']
             });
             return participants;
-        } catch (error) {
-            console.log("Error fetching participants with details:", error)
-            throw error
         }
-    }
 
     async getDetailsByEmail(email) {
-        try {
             const participantDetails = await this.db.Participant.findOne({
                 where: {email: email},
                 attributes: ['firstName', 'lastName', 'dob']
             })
 
             return participantDetails
-        } catch (error) {
-            console.log("Error fetching participant details:", error)
-            throw error
-        }
     }
 
     async getWorkByEmail(email) {
-        try {
             const participant = await this.db.Participant.findOne({
                 where: {email: email},
                 include: [
@@ -129,14 +107,9 @@ class ParticipantService {
             }
 
             return workdetails
-        } catch (error) {
-            console.log("Error fetching participant work details:", error)
-            throw error 
-        }
     }
 
     async getHomeByEmail(email) {
-        try {
             const participant = await this.db.Participant.findOne({
                 where: {email: email},
                 include: [
@@ -150,14 +123,9 @@ class ParticipantService {
             }
 
             return homedetails
-        } catch (error) {
-            console.log("Error fetching participant home details:", error)
-            throw error 
-        }
     }
     
     async deleteParticipant(email) {
-        try {
             const participant = await this.db.Participant.findOne({
                 where: {email: email}
             })
@@ -167,14 +135,9 @@ class ParticipantService {
             })
 
             return participant
-        } catch (error) {
-            console.log("Error deleting participant:", error)
-            throw error 
-        }
     }
 
     async updateParticipant(email, updatedData) {
-        try {
             const participant = await this.db.Participant.findOne({
                 where: { email: email },
                 include: [
@@ -188,12 +151,7 @@ class ParticipantService {
             })
 
             return participant
-        } catch (error) {
-            console.log("Error updating participant:", error)
-            throw error 
-        }
     }
-
 }
 
 module.exports = ParticipantService

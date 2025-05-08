@@ -7,15 +7,15 @@ module.exports = (sequelize, DataTypes) => {
         },
         companyName: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
         },
         salary: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.DECIMAL(10, 3),
             allowNull: false
         },
         currency: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
         }
     });
 
