@@ -35,8 +35,8 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Participant.associate = (db) => {
-        Participant.hasOne(db.Work)
-        Participant.hasOne(db.Home)
+        Participant.hasOne(db.Work, {foreignKey: 'ParticipantId', onDelete: 'CASCADE'})
+        Participant.hasOne(db.Home, {foreignKey: 'ParticipantId', onDelete: 'CASCADE'})
     };
 
     return Participant;

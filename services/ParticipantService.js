@@ -76,6 +76,18 @@ class ParticipantService {
             return participants  
     }
 
+    async getParticipant(email) {
+        const participant = await this.db.Participant.findOne({
+            where: { email: email },
+            include: [
+                {model: this.db.Home},
+                {model: this.db.Work}
+            ]
+        })
+
+        return participant
+    }
+
     async getDetails() {
             const participants = await this.db.Participant.findAll({
                 attributes: ['firstName', 'lastName', 'email']
@@ -125,32 +137,63 @@ class ParticipantService {
             return homedetails
     }
     
-    async deleteParticipant(email) {
-            const participant = await this.db.Participant.findOne({
-                where: {email: email}
-            })
-
-            await this.db.Participant.destroy({
-                where: {email: email}
-            })
-
-            return participant
+    async deleteParticipant(email, participant) {
+ 
+        await this.db.Participant.destroy({
+            where: { email: email }
+        });
+    
+        console.log('Deleted participant and associated records:', participant);
+    
+        return participant;
     }
 
-    async updateParticipant(email, updatedData) {
-            const participant = await this.db.Participant.findOne({
-                where: { email: email },
-                include: [
-                    {model: this.db.Home},
-                    {model: this.db.Work}
-                ]
-            })
-            
-            await this.db.Participant.update(updatedData, {
-                where: {email: email}
-            })
+    async updateParticipant(updatedData, participant) {
+        let affectedRows = 0
 
-            return participant
+        const [participantRowsAffected] = await this.db.Participant.update(
+            {
+                email: updatedData.email,
+                firstName: updatedData.firstName,
+                lastName: updatedData.lastName,
+                dob: updatedData.dob,
+            }, 
+            { where: {email: participant.email} },
+        )
+        affectedRows += participantRowsAffected
+        
+        if(updatedData.Home) {
+        const [homeRowsAffected] = await this.db.Home.update(
+            {
+                country: updatedData.Home.country,
+                city: updatedData.Home.city
+            },
+            { where: {ParticipantId: participant.id} }
+        )
+        affectedRows += homeRowsAffected
+    }
+
+    if(updatedData.Work) {
+        const [workRowsAffected] = await this.db.Work.update(
+            {
+                companyName: updatedData.Work.companyName,
+                salary: updatedData.Work.salary,
+                currency: updatedData.Work.currency
+            },
+            { where: {ParticipantId: participant.id} }
+        )
+        affectedRows += workRowsAffected
+    }
+        
+        const updatedParticipant = await this.db.Participant.findOne({
+            where: { email: updatedData.email || participant.email },
+            include: [
+                { model: this.db.Home },
+                { model: this.db.Work }
+            ]
+        })     
+
+        return [affectedRows, updatedParticipant]         
     }
 }
 

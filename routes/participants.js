@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const db = require('../models');
 const validateParticipant = require('../utils/validateParticipant')
+const validatePut = require('../utils/validatePut')
 const ParticipantService = require('../services/ParticipantService')
 const participantService = new ParticipantService(db)
 const createError = require('http-errors')
@@ -64,21 +65,38 @@ router.get('/home/:email', async (req, res, next) => {
     }
 })
 
-router.delete('/:email', (req, res, next) => {
+router.delete('/:email', async (req, res, next) => {
     const email = req.params.email
     try {
-        const participant = participantService.deleteParticipant(email) 
-        res.status(200).json(participant)
+        const participant = await participantService.getParticipant(email)
+
+        if(!participant){
+            return next(createError(404, 'No participant found with this email'))
+        }
+
+        await participantService.deleteParticipant(email, participant) 
+        res.status(200).json(`Participant with the following email was deleted: ${email}`)
     } catch (error) {
         next(createError(error))
     }
 })
 
-router.put('/:email', (req, res, next) => {
+router.put('/:email', validatePut, async (req, res, next) => { 
     const email = req.params.email
     const updatedData = req.body
     try {
-        const updatedParticipant = participantService.updateParticipant(email, updatedData)
+        const participant = await participantService.getParticipant(email)
+
+        if(!participant){
+            return next(createError(404, 'No participant found with this email'))
+        }
+
+        const [affectedRows, updatedParticipant] = await participantService.updateParticipant(updatedData, participant)
+        
+        if(affectedRows === 0) {
+            return next(createError(400, 'No changes were made to the participant'))
+        }
+        
         res.status(200).json(updatedParticipant)
     } catch (error) {
         next(createError(error))

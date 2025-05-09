@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
         },
         salary: {
-            type: DataTypes.DECIMAL(10, 3),
+            type: DataTypes.DECIMAL(20, 2),
             allowNull: false
         },
         currency: {
@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Work.associate = (db) => {
-        Work.belongsTo(db.Participant)
+        Work.belongsTo(db.Participant, {foreignKey: 'ParticipantId', onDelete: 'CASCADE'})
     };
 
     return Work;

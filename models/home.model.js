@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Home.associate = (db) => {
-        Home.belongsTo(db.Participant)
+        Home.belongsTo(db.Participant, {foreignKey: 'ParticipantId', onDelete: 'CASCADE'})
     };
 
     return Home;
