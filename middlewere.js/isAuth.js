@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+const createError = require('http-errors')
 
 function isAuth(req, res, next) {
 	const authHeader = req.headers['authorization']
@@ -8,31 +9,19 @@ function isAuth(req, res, next) {
 	}
 
 	if(!token) {
-		return res.status(401).json({
-			statusCode: 401,
-			result: {message: 'No token attached'}}
-		);
+        return next(createError(401, 'No token attached' ));
 	}
 
 	jwt.verify(token, process.env.TOKEN_SECRET, (err, decoded) => {
 		if(err) {
 			if(err.name === 'TokenExpiredError') {
-				return res.status(401).json({
-					statusCode: 401,
-					result: {message: 'Token has expired'}}
-				);
+                return next(createError(401, 'Token has expired' ));
 			};
 			if(err.name === 'JsonWebTokenError' && err.message === 'invalid signature') {
-				return res.status(401).json({
-					statusCode: 401,
-					result: {message: 'Invalid signature'}}
-				)
+                return next(createError(401, 'Invalid signature'));
 			};
 			if(err.name === 'JsonWebTokenError' && err.message === 'jwt malformed') {
-				return res.status(401).json({
-					statusCode: 401,
-					result: {message: 'Malformed token'}}
-				);
+                return next(createError(401, 'Malformed token' ));
 			};
 		};
 		req.user = decoded.sub

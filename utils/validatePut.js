@@ -21,10 +21,10 @@ function validatePut(req, res, next) {
         if (participant.Home && typeof participant.Home !== 'object') {
             errors.push('Invalid Home: Home needs to be an object');
         } else {
-            if (!participant.Home.country && typeof participant.Home.country !== 'string') {
-                errors.push('Invalid country.: ountry needs to be a string');
+            if (participant.Home.country && typeof participant.Home.country !== 'string') {
+                errors.push('Invalid country: Country needs to be a string');
             }
-            if (!participant.Home.city && typeof participant.Home.city !== 'string') {
+            if (participant.Home.city && typeof participant.Home.city !== 'string') {
                 errors.push('Invalid city: city needs to be a string');
             }
         }

@@ -42,9 +42,10 @@ class ParticipantService {
             
             const newParticipant = await this.db.Participant.findOne({
                 where: { id: newParticipantPersona.id},
+                attributes: ['id','email', 'firstName', 'lastName'],
                 include: [
-                    {model: this.db.Home},
-                    {model: this.db.Work}
+                    {model: this.db.Home, attributes: ['country', 'city'] },
+                    {model: this.db.Work, attributes: ['companyName', 'salary'] }
                 ]
             })
 
@@ -53,9 +54,10 @@ class ParticipantService {
 
     async getAll() {
             const participants = await this.db.Participant.findAll({
+                attributes: ['id','email', 'firstName', 'lastName'],
                 include: [
-                    {model: this.db.Home},
-                    {model: this.db.Work}
+                    {model: this.db.Home, attributes: ['country', 'city'] },
+                    {model: this.db.Work, attributes: ['companyName', 'salary'] }
                 ]
             });
 
@@ -187,10 +189,11 @@ class ParticipantService {
         
         const updatedParticipant = await this.db.Participant.findOne({
             where: { email: updatedData.email || participant.email },
-            include: [
-                { model: this.db.Home },
-                { model: this.db.Work }
-            ]
+            attributes: ['id','email', 'firstName', 'lastName'],
+                include: [
+                    {model: this.db.Home, attributes: ['country', 'city'] },
+                    {model: this.db.Work, attributes: ['companyName', 'salary'] }
+                ]
         })     
 
         return [affectedRows, updatedParticipant]         

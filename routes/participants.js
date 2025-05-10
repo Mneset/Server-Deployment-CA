@@ -14,10 +14,7 @@ router.post('/login', async (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if(!authHeader || !authHeader.startsWith('Basic ')) {
-        return res.status(400).json({
-            statusCode: 400,
-            result: { message: 'Missing or invalid Authorization header' }
-        });
+        return next(createError(400, 'Missing or invalid Authorization header' ));
     }
 
     const base64Credentials = authHeader.split(' ')[1];
