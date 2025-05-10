@@ -5,13 +5,17 @@ module.exports = (sequelize, DataTypes) => {
             autoIncrement: true,
             primaryKey: true
         },
-        username: {
+        login: {
             type: DataTypes.STRING,
             allowNull: false,
             unique: true
         },
-        password: {
-            type: DataTypes.STRING,
+        encryptedPassword: {
+            type: DataTypes.BLOB,
+            allowNull: false
+        },
+        salt: {
+            type: DataTypes.BLOB,
             allowNull: false
         }
     });

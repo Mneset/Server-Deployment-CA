@@ -6,8 +6,64 @@ const validatePut = require('../utils/validatePut')
 const ParticipantService = require('../services/ParticipantService')
 const participantService = new ParticipantService(db)
 const createError = require('http-errors')
+const { comparePassword } = require('../utils/passwordHelper')
+const isAuth = require('../middlewere.js/isAuth')
+const jwt = require('jsonwebtoken')
 
-router.get('/', async (req, res, next) => {
+router.post('/login', async (req, res, next) => {
+    const authHeader = req.headers.authorization;
+
+    if(!authHeader || !authHeader.startsWith('Basic ')) {
+        return res.status(400).json({
+            statusCode: 400,
+            result: { message: 'Missing or invalid Authorization header' }
+        });
+    }
+
+    const base64Credentials = authHeader.split(' ')[1];
+    const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+    const [login, password] = credentials.split(':');
+
+	if(!login || !password) {
+        return next(createError(400, 'No participant found with this email'))
+    }
+
+	try {
+		const user = await db.User.findOne({
+			where: {login: login}
+		})
+
+		if(!user) {
+            return next(createError(404, 'No participant found with this email'))
+        }
+
+		const isPasswordValid = await comparePassword(password, user.encryptedPassword, user.salt);
+
+		if(!isPasswordValid) {
+            return next(createError(400, 'Invalid email or password'))
+        }
+
+		const token = jwt.sign(
+			{sub: user.id},
+			process.env.TOKEN_SECRET,
+			{ expiresIn: '15m' }
+		);
+
+		const decodedToken = jwt.decode(token);
+
+		res.status(200).json({
+            result: {
+                token,
+                sub: decodedToken.sub,
+                exp: decodedToken.exp
+            }
+        });
+	} catch (error) {
+		next(createError(error))
+	};
+})
+
+router.get('/', isAuth, async (req, res, next) => {
     try {
         const participants = await participantService.getAll()
         res.status(200).json(participants)
@@ -16,7 +72,7 @@ router.get('/', async (req, res, next) => {
     }
 })
 
-router.post('/add', validateParticipant,  async (req, res, next) => {
+router.post('/add', isAuth, validateParticipant,  async (req, res, next) => {
     const participant = req.body
     try {    
         const newpParticipant = await participantService.addParticipant(participant)
@@ -26,7 +82,7 @@ router.post('/add', validateParticipant,  async (req, res, next) => {
     }
 })
 
-router.get('/details', async (req, res, next) => {
+router.get('/details', isAuth, async (req, res, next) => {
     try {
         const participants = await participantService.getDetails()
         res.status(200).json(participants)
@@ -35,7 +91,7 @@ router.get('/details', async (req, res, next) => {
     }
 })
 
-router.get('/details/:email', async (req, res, next) => {
+router.get('/details/:email', isAuth, async (req, res, next) => {
     const email = req.params.email
     try {
         const participantDetails = await participantService.getDetailsByEmail(email)
@@ -45,7 +101,7 @@ router.get('/details/:email', async (req, res, next) => {
     }
 })
 
-router.get('/work/:email', async (req, res, next) => {
+router.get('/work/:email', isAuth, async (req, res, next) => {
     const email = req.params.email
     try {
         const participantWorkDetails = await participantService.getWorkByEmail(email)
@@ -55,7 +111,7 @@ router.get('/work/:email', async (req, res, next) => {
     }
 })
 
-router.get('/home/:email', async (req, res, next) => {
+router.get('/home/:email', isAuth, async (req, res, next) => {
     const email = req.params.email
     try {
         const participantHomeDetails = await participantService.getHomeByEmail(email)
@@ -65,7 +121,7 @@ router.get('/home/:email', async (req, res, next) => {
     }
 })
 
-router.delete('/:email', async (req, res, next) => {
+router.delete('/:email', isAuth, async (req, res, next) => {
     const email = req.params.email
     try {
         const participant = await participantService.getParticipant(email)
@@ -75,13 +131,13 @@ router.delete('/:email', async (req, res, next) => {
         }
 
         await participantService.deleteParticipant(email, participant) 
-        res.status(200).json(`Participant with the following email was deleted: ${email}`)
+        res.status(200).json({message: `Participant with the following email was deleted: ${email}`})
     } catch (error) {
         next(createError(error))
     }
 })
 
-router.put('/:email', validatePut, async (req, res, next) => { 
+router.put('/:email', isAuth, validatePut, async (req, res, next) => { 
     const email = req.params.email
     const updatedData = req.body
     try {

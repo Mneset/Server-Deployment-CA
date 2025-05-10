@@ -1,4 +1,5 @@
 const db = require('../models');
+const { hashPassword } = require('../utils/passwordHelper')
 
 async function initializeDb() {
     try {
@@ -26,8 +27,11 @@ async function initializeDb() {
             { country: 'Australia', city: 'Sydney', ParticipantId: participants[3].id }
         ]);
 
+        const adminPassword = 'P4ssword'
+        const {encryptedPassword, salt } = await hashPassword(adminPassword)
+
         await db.User.create(
-            {username: "admin", password: 'P4ssword'}
+            {login: "admin", encryptedPassword: encryptedPassword, salt: salt}
         )
 
         console.log('Database seeded successfully');
